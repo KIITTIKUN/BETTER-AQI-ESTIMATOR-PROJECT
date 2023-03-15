@@ -1,4 +1,4 @@
-const token = 'Input your token in file token.js and you can get token from https://aqicn.org/data-platform/token/';
+const token = 'a11cdd4f618164fecb8b9c9273cdf58a26b20f11';
 let blueIcon = new L.Icon({
   iconUrl: 'img/marker-icon-2x-blue.png',
   shadowUrl: 'img/marker-shadow.png',
@@ -236,6 +236,11 @@ const partitionSetPoint = (dataSet,x,y) => {
   return region
 }
 const onMapClick = (e) => {
+  pointIndex = pointIndex +1;
+  if(pointIndex === 3){
+    alert('refresh page beacause your data change')
+window.location.reload();
+  }
   let latitude = document.getElementById(`latitude`).value = e.latlng.lat;
   let longitude = document.getElementById(`longitude`).value = e.latlng.lng;
   let minlat = latitude - 0.06;
