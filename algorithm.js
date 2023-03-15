@@ -1,4 +1,4 @@
-const token = 'a11cdd4f618164fecb8b9c9273cdf58a26b20f11';
+const token = 'Input your token in file token.js and you can get token from https://aqicn.org/data-platform/token/';
 let blueIcon = new L.Icon({
   iconUrl: 'img/marker-icon-2x-blue.png',
   shadowUrl: 'img/marker-shadow.png',
