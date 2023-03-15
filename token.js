@@ -1,3 +1,3 @@
-const token = '764180d3adabf687e282b6672fc295912c64af93';
+const token = 'Input your token in file token.js and you can get token from https://aqicn.org/data-platform/token/';
 
 export { token };
