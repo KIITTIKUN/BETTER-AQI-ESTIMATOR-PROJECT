@@ -198,10 +198,12 @@ const latitude = document.getElementsByClassName('latitude-input');
 const longitude = document.getElementsByClassName('longitude-input');
 
 const partitionSetPoint = (dataSet,x,y) => {
-  const region = {ne:[],nw:[],sw:[],se:[],ignore:[]};
+  const region = {ne:[],nw:[],sw:[],se:[],ignore:[],notHaveData:[]};
   const data = dataSet.data
   for(let i =0;i < data.length;i++){
-    if (data[i].lat  > y && data[i].lon > x){
+    if (data[i].aqi === '-'){
+      region.notHaveData.push(data[i]);
+    } else if (data[i].lat  > y && data[i].lon > x){
       region.ne.push(data[i]);
     } else if (data[i].lat < y &&  data[i].lon > x)  {
       region.nw.push(data[i]);
@@ -236,17 +238,12 @@ const partitionSetPoint = (dataSet,x,y) => {
   return region
 }
 const onMapClick = (e) => {
-  pointIndex = pointIndex +1;
-  if(pointIndex === 3){
-    alert('refresh page beacause your data change')
-window.location.reload();
-  }
   let latitude = document.getElementById(`latitude`).value = e.latlng.lat;
   let longitude = document.getElementById(`longitude`).value = e.latlng.lng;
-  let minlat = latitude - 0.06;
-  let maxlat = latitude + 0.06;
-  let minlon = longitude - 0.06;
-  let maxlon = longitude + 0.06;
+  let minlat = latitude - 2;
+  let maxlat = latitude + 2;
+  let minlon = longitude - 2;
+  let maxlon = longitude + 2;
   const myAPI = `https://api.waqi.info/v2/map/bounds?latlng=${minlat},${minlon},${maxlat},${maxlon}&networks=all&token=${token}`;
   async function getData() {
     const response = await fetch(myAPI);
@@ -273,6 +270,7 @@ region.ne.sort(distanceSorting);
 region.nw.sort(distanceSorting);
 region.sw.sort(distanceSorting);
 region.se.sort(distanceSorting);
+console.log(region)
 const plotPolygon = (e) => {
   const plot = [region.ne[0],region.nw[0],region.sw[0],region.se[0]];
   const targetPosition = { lat: latitude, lon: longitude };
@@ -287,20 +285,32 @@ const plotPolygon = (e) => {
 const averageDisplay = document.getElementById('display-average');
 let average = Number.parseFloat(averageFourPoints(fourPoints, targetPosition)).toFixed(2);
 averageDisplay.innerHTML = `${average}`;
+if(average <= 25 && average >= 0){
+  averageDisplay.style.backgroundColor = "blue";
+averageDisplay.style.color = "white";
+} else if(average <= 50 && average >= 26){
+  averageDisplay.style.backgroundColor = "green";
+  averageDisplay.style.color = "black";
+} else if(average <= 100 && average >= 51){
+averageDisplay.style.backgroundColor = "yellow";
+averageDisplay.style.color = "black";
+} else if(average <= 200 && average >= 101){
+  averageDisplay.style.backgroundColor = "orange";
+  averageDisplay.style.color = "black";
+} else if( average >= 201){
+  averageDisplay.style.backgroundColor = "red";
+  averageDisplay.style.color = "black";
+} 
 L.polygon(plot).addTo(map);
 L.marker([latitude, longitude], {icon: redIcon}).addTo(map);
 let marker1 = L.marker([plot[0].lat, plot[0].lon], {icon: greenIcon}).bindPopup(`${plot[0].aqi}`);
 let marker2 = L.marker([plot[1].lat, plot[1].lon], {icon: blueIcon}).bindPopup(`${plot[1].aqi}`);
 let marker3 = L.marker([plot[2].lat, plot[2].lon], {icon: yellowIcon}).bindPopup(`${plot[2].aqi}`);
 let marker4 = L.marker([plot[3].lat, plot[3].lon], {icon: violetIcon}).bindPopup(`${plot[3].aqi}`);
-
 let popupGroup = L.layerGroup([marker1, marker2, marker3,marker4]);
-
 map.addLayer(popupGroup);
-
 }
 plotPolygon();
 });
 }
 map.on('click', onMapClick);
-let pointIndex = 1;
